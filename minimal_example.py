@@ -8,12 +8,9 @@ Created on Tue Mar 17 18:55:25 2020
 import networkx as nx
 import numpy as np
 
-
 from tqdm import tqdm
 
 from kuramoto import kuramoto_step, kuramoto_figure
-
-
 
 # parameters
 
@@ -26,7 +23,6 @@ KM = 0
 
 w0 = 2*np.pi
 dw = 0*w0
-
 
 # generate example graph
 
@@ -62,11 +58,11 @@ while t < T:
     
 pbar.close()
 
-fig = kuramoto_figure(plot_type='both')
+fig = kuramoto_figure(plot_type='graph')
 
 for i, t in tqdm(enumerate(Gt)):
     
     G = Gt[t]
     
     fig.plot(G)
-    fig.save('C:/Users/Adrian/Desktop/test', str(i) + '.png')
+    # fig.save('C:/Users/Adrian/Desktop/test', str(i) + '.png')

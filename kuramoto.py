@@ -5,7 +5,13 @@ Created on Tue Mar 17 16:55:48 2020
 @author: Adrian
 """
 
+import os
 import numpy as np
+import networkx as nx
+
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.gridspec as gridspec
 
 def kuramoto_step(G, KM=0, dw=0, local=True):
     
@@ -56,3 +62,99 @@ def kuramoto_step(G, KM=0, dw=0, local=True):
             dp[i] += dw*(2*np.random.rand()-1)
             
     return dp
+
+class kuramoto_figure():
+    
+    """
+    Class for plotting and saving of phase data on the underlying graph 
+    topologies and on the unit circle.
+    
+    Input:
+        plot_type = {'graph', 'phase', 'both'}
+        
+    """
+    
+    def __init__(self, plot_type='graph'):
+        
+        # plot_type = {'graph', 'phase', 'both'}
+        self.plot_type = plot_type
+        self.cmap = cm.get_cmap('hsv')
+        
+        
+        if self.plot_type in ['graph']:
+            self.figure = plt.figure(figsize=1.5*plt.figaspect(1))
+            self.ax = [self.figure.add_subplot()]
+
+        if self.plot_type in ['phase']:
+            self.figure = plt.figure(figsize=1.5*plt.figaspect(1))
+            self.ax = [self.figure.add_subplot(projection='polar')]
+            
+        if self.plot_type in ['both']:
+            self.figure = plt.figure(figsize=1.5*plt.figaspect(1/2))
+            
+            gs = gridspec.GridSpec(1, 2)
+            self.ax = [self.figure.add_subplot(gs[0,0]), \
+                       self.figure.add_subplot(gs[0,1], projection='polar')]
+
+    def plot(self, G):
+        
+        """
+        Update figure with chosen plot_type.
+        
+        Input:
+            G -- networkx graph
+                 required node attributes are:
+                     'pos' -- 2D node coordinates (x, y)
+                     'p' -- phase
+                     
+        As implemented, the 'hsv' colormap is used.
+        
+        Node size is scaled by node degree.
+        
+        """
+        
+        pos = {n:G.nodes[n]['pos'] for n in G.nodes}
+
+        p = np.asarray([G.nodes[ID]['p'] for ID in G.nodes])
+        k = np.asarray([G.degree(ID) for ID in G.nodes])
+        
+        c = self.cmap(np.mod(p.flatten(),2*np.pi)/(2*np.pi))
+        
+        if self.plot_type in ['graph', 'both']:
+            
+            plt.sca(self.ax[0])
+            plt.cla()
+            
+            nx.draw_networkx_edges(G, pos)
+            nx.draw_networkx_nodes(G, pos, node_size=10*k, node_color=c)      
+
+            plt.axis('equal')    
+            plt.axis('off')
+
+        if self.plot_type in ['phase', 'both']:
+            
+            plt.sca(self.ax[-1])
+            plt.cla()
+            
+            plt.gca().scatter(np.mod(p.flatten(),2*np.pi), np.ones(G.number_of_nodes()), s=10*k, c=c)
+            
+            plt.ylim([0,1.5])
+            plt.axis('off')
+            
+        plt.pause(0.001)
+        plt.draw()
+        
+        
+    def save(self, Path, Name, dpi=100):
+        
+        """
+        Save current figure.
+        
+        Input:
+            Path -- System path to desired folder. Folder must exist.
+            Name -- Output file name including extension.
+            dpi -- Output resolution
+            
+        """
+        
+        plt.savefig(os.path.join(Path, Name), dpi=dpi, bbox_inches='tight', pad_inches=0.0)
