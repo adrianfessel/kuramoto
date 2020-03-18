@@ -158,3 +158,44 @@ class kuramoto_figure():
         """
         
         plt.savefig(os.path.join(Path, Name), dpi=dpi, bbox_inches='tight', pad_inches=0.0)
+        
+def kymograph(t, Gt):
+    
+    """
+    Generate a kymograph of phase data. (Node ID vs time, phase as color)
+    
+    Input:
+        t -- array of time points
+        Gt -- dict of graphs, keyed by time points t
+        
+    Node number does not need to be constant over time.  
+    
+    """
+    
+    all_IDs = [list(Gt[ti].nodes()) for ti in Gt]
+    all_IDs = [i for sl in all_IDs for i in sl]
+    
+    nodes = np.unique(all_IDs, axis=0)
+    
+
+    nodes = [tuple(ID) if isinstance(ID, np.ndarray) else ID for ID in nodes]
+    
+    pt = np.zeros((len(nodes), len(Gt)))
+    
+    for i, t in enumerate(Gt):
+        
+        G = Gt[t]
+        
+        for j, ID in enumerate(nodes):
+
+            pt[j,i] = np.mod(G.nodes[ID]['p'], 2*np.pi) if ID in G.nodes else np.nan
+        
+    
+    plt.figure(figsize=plt.figaspect(1/2))
+    plt.pcolormesh(np.linspace(0,np.max(t),pt.shape[1]), np.arange(len(nodes)),pt, cmap='hsv')
+    plt.xlabel('time', fontsize=14)
+    plt.ylabel('node-ID', fontsize=14)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14) 
+    
+    plt.colorbar()
