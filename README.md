@@ -9,7 +9,7 @@
 	a graph. Phenomena that can be observed depend on the coupling topology and strength, and as well the
 	presence of external noise. An illustration is shown below.
 	
-![alt text](https://github.com/adrianfessel/kuramoto/blob/main/expl_figure.png?raw=true)
+![alt text](https://github.com/adrianfessel/kuramoto/blob/master/expl_figure.png?raw=true)
 	
 # Contents
 	kuramoto.py : Function for iterating the Kuramoto model; functions for plotting
