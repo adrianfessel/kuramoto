@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 17 16:55:48 2020
-
-@author: Adrian
-"""
-
 import os
 import numpy as np
 import networkx as nx
@@ -13,24 +6,31 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
 
+
 def kuramoto_step(G, KM=0, dw=0, local=True):
-    
-    """ 
-    Performs one single iteration of the kuramoto model.
-    
-    Input:
-        G -- networkx graph
-             required node attributes are:
-                 'w' -- characteristic frequency
-                 'p' -- oscillator phase
-             required edge attributes (if local=True):
-                 'K' -- local coupling strength
-        KM -- mean-field coupling strength
-        dw -- freuency noise amplitude in radians/time
-    
-    Output:
-        dp -- phase change per time, cell array keyed by node index
-    
+    """
+    Performs one single iteration of the kuramoto model on a graph topology.
+
+    Parameters
+    ----------
+    G : networkx graph
+        required node attributes are:
+            'w' : characteristic frequency
+            'p' : oscillator phase
+        required edge attributes (if local=True):
+            'K' : local coupling strength
+    KM : float, optional
+        mean-field coupling strength. The default is 0.
+    dw : float, optional
+        freuency noise amplitude in radians/time. The default is 0.
+    local : dict, optional
+        enable local coupling. The default is True.
+
+    Returns
+    -------
+    dp : dict
+        phase change per time, keyed by node index
+
     """
     
     dp = {}
@@ -63,18 +63,27 @@ def kuramoto_step(G, KM=0, dw=0, local=True):
             
     return dp
 
+
 class kuramoto_figure():
-    
-    """
-    Class for plotting and saving of phase data on the underlying graph 
-    topologies and on the unit circle.
-    
-    Input:
-        plot_type = {'graph', 'phase', 'both'}
-        
-    """
+
     
     def __init__(self, plot_type='graph'):
+        """
+        Class for plotting and saving of phase data on the underlying graph 
+        topologies and on the unit circle.
+        
+        Possible plot types are 'graph', 'phase', 'both'
+
+        Parameters
+        ----------
+        plot_type : string, optional
+            Desired plot type. The default is 'graph'.
+
+        Returns
+        -------
+        None.
+
+        """
         
         # plot_type = {'graph', 'phase', 'both'}
         self.plot_type = plot_type
@@ -96,23 +105,25 @@ class kuramoto_figure():
             self.ax = [self.figure.add_subplot(gs[0,0]), \
                        self.figure.add_subplot(gs[0,1], projection='polar')]
 
+
     def plot(self, G):
-        
         """
-        Update figure with chosen plot_type.
-        
-        Input:
-            G -- networkx graph
-                 required node attributes are:
-                     'pos' -- 2D node coordinates (x, y)
-                     'p' -- phase
-                     
-        As implemented, the 'hsv' colormap is used.
-        
-        Node size is scaled by node degree.
-        
+        Update figure with chosen plot_type. As implemented, the 'hsv' colormap 
+        is used. Node size is scaled by node degree.
+
+        Parameters
+        ----------
+        G : networkx graph
+            required node attributes are:
+                'pos' : 2D node coordinates (x, y)
+                'p' : phase
+
+        Returns
+        -------
+        None.
+
         """
-        
+
         pos = {n:G.nodes[n]['pos'] for n in G.nodes}
 
         p = np.asarray([G.nodes[ID]['p'] for ID in G.nodes])
@@ -146,32 +157,45 @@ class kuramoto_figure():
         
         
     def save(self, Path, Name, dpi=100):
-        
         """
         Save current figure.
-        
-        Input:
-            Path -- System path to desired folder. Folder must exist.
-            Name -- Output file name including extension.
-            dpi -- Output resolution
-            
+
+        Parameters
+        ----------
+        Path : string
+            system path to desired folder
+        Name : string
+            output file name including extension
+        dpi : int, optional
+            output resolution. The default is 100.
+
+        Returns
+        -------
+        None.
+
         """
         
         plt.savefig(os.path.join(Path, Name), dpi=dpi, bbox_inches='tight', pad_inches=0.0)
         
+        
 def kymograph(t, Gt):
-    
     """
     Generate a kymograph of phase data. (Node ID vs time, phase as color)
-    
-    Input:
-        t -- array of time points
-        Gt -- dict of graphs, keyed by time points t
-        
-    Node number does not need to be constant over time.  
-    
+    Node number does not need to be constant over time. 
+
+    Parameters
+    ----------
+    t : 1D array
+        array of time points
+    Gt : dict
+        dict of graphs, keyed by time points t
+
+    Returns
+    -------
+    None.
+
     """
-    
+
     all_IDs = [list(Gt[ti].nodes()) for ti in Gt]
     all_IDs = [i for sl in all_IDs for i in sl]
     
